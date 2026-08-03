@@ -16,8 +16,16 @@ export const generateQuestions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ submission_id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const apiKey = process.env["ANTHROPIC_API_KEY"];
-    if (!apiKey) return { error: "parse_failed" as const };
+    // TanStack Start / Nitro: try both process.env and import.meta.env
+    const apiKey =
+      process.env["ANTHROPIC_API_KEY"] ??
+      (import.meta.env as Record<string, string | undefined>)["ANTHROPIC_API_KEY"] ??
+      (import.meta.env as Record<string, string | undefined>)["VITE_ANTHROPIC_API_KEY"];
+
+    if (!apiKey) {
+      console.error("generate-questions: ANTHROPIC_API_KEY not found in environment");
+      return { error: "parse_failed" as const };
+    }
 
     const { client, submission, previous, previousQa } = await loadContext(
       context.supabase,

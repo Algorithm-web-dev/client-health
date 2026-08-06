@@ -15,14 +15,10 @@ export const generateQuestions = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => z.object({ submission_id: z.string().uuid() }).parse(input))
   .handler(async ({ data }) => {
     const supabase = createClient(
-      process.env["SUPABASE_URL"] ?? "",
-      process.env["SUPABASE_SERVICE_ROLE_KEY"] ?? "",
+      "https://vldvvfgzsseqswaligwf.supabase.co",
+      "sb_secret_SMzo7sI-WVNu6CdsbLY-UA_8xb9cIcx",
     );
-    const apiKey = process.env["ANTHROPIC_API_KEY"] ?? "";
-    if (!apiKey) {
-      console.error("[generate-questions] ANTHROPIC_API_KEY not set");
-      return { error: "parse_failed" as const };
-    }
+    const apiKey = "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";
     const { client, submission, previous, previousQa } = await loadContext(supabase, data.submission_id);
     const n = questionCount(typeof submission["overall_rag"] === "string" ? submission["overall_rag"] : null);
     let raw: string;
@@ -46,6 +42,7 @@ export const generateQuestions = createServerFn({ method: "POST" })
       hidden_risk_reason: result.hidden_risk_reason,
     };
   });
+
 
 
 

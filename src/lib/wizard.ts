@@ -209,7 +209,7 @@ export async function saveSubmission({
   return data;
 }
 
-const AGENT_TIMEOUT_MS = 10_000;
+const AGENT_TIMEOUT_MS = 45_000;
 
 /** Calls the generate-questions function; resolves to null on error or after 10s. */
 export async function requestAgentQuestions(submissionId: string): Promise<AgentQuestion[] | null> {
@@ -229,10 +229,11 @@ export async function requestAgentQuestions(submissionId: string): Promise<Agent
   })();
 
 
-  const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), AGENT_TIMEOUT_MS));
+  console.log('[wizard] calling requestAgentQuestions for', submissionId); const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), AGENT_TIMEOUT_MS));
   try {
-    return await Promise.race([call, timeout]);
-  } catch {
+    const result = await Promise.race([call, timeout]); console.log('[wizard] agent result:', result); return result;
+  } catch (err) {
+    console.error("[wizard] SERVER FUNCTION ERROR:", JSON.stringify(err, null, 2));
     return null;
   }
 }
@@ -270,3 +271,6 @@ export async function finalizeSubmission(args: {
     .eq("id", submission.id);
   if (updateError) throw updateError;
 }
+
+
+

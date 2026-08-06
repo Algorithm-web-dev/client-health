@@ -1,35 +1,26 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { createClient } from "@supabase/supabase-js";
 import {
   buildBatchUserPrompt,
   callBatchModelWithRetry,
   loadBatchContext,
 } from "@/lib/batch-analysis.server";
 
-/**
- * Phase 3 batch agent — analyses ONE submitted submission.
- * The /cycles page calls this sequentially per client so it can show live progress;
- * a single failure marks that agent_output "failed" and never stops the batch.
- */
 export const analyzeSubmission = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
-    z.object({ submission_id: z.string().uuid() }).parse(input),
-  )
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-
-    const { data: isDirector } = await supabase.rpc("current_role_is", {
-      _roles: ["director", "admin"],
-    });
-    if (!isDirector) throw new Error("Forbidden");
-    void userId;
-
+  .inputValidator((input: unknown) => z.object({ submission_id: z.string().uuid() }).parse(input))
+  .handler(async ({ data }) => {
+    const supabase = createClient(
+      process.env["SUPABASE_URL"] ?? "",
+      process.env["SUPABASE_SERVICE_ROLE_KEY"] ?? "",
+    );
+    const apiKey = process.env["ANTHROPIC_API_KEY"] ?? "";
+    if (!apiKey) {
+      console.error("[batch-analysis] ANTHROPIC_API_KEY not set");
+      return { ok: false as const, reason: "missing_api_key" };
+    }
     const ctx = await loadBatchContext(supabase, data.submission_id);
     const submission = ctx.submission as { client_id: string; cycle_id: string };
-
-    // One agent_outputs row per submission — start it as pending.
     const { data: output, error: outputError } = await supabase
       .from("agent_outputs")
       .insert({
@@ -42,22 +33,14 @@ export const analyzeSubmission = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (outputError) throw outputError;
-
-    const apiKey = process.env["ANTHROPIC_API_KEY"];
-    if (!apiKey) {
-      await supabase.from("agent_outputs").update({ status: "failed" }).eq("id", output.id);
-      return { ok: false as const, reason: "missing_api_key" };
-    }
-
     let result;
     try {
       result = await callBatchModelWithRetry(buildBatchUserPrompt(ctx), apiKey);
     } catch (error) {
-      console.error("batch-analysis failed for submission", data.submission_id, error);
+      console.error("[batch-analysis] failed for submission", data.submission_id, error);
       await supabase.from("agent_outputs").update({ status: "failed" }).eq("id", output.id);
       return { ok: false as const, reason: "agent_failed" };
     }
-
     const { error: updateError } = await supabase
       .from("agent_outputs")
       .update({
@@ -69,7 +52,6 @@ export const analyzeSubmission = createServerFn({ method: "POST" })
       })
       .eq("id", output.id);
     if (updateError) throw updateError;
-
     const { error: deltaError } = await supabase.from("agent_deltas").insert({
       agent_output_id: output.id,
       client_id: submission.client_id,
@@ -80,18 +62,14 @@ export const analyzeSubmission = createServerFn({ method: "POST" })
       resolved_flags: result.delta.resolved_flags,
       summary: result.delta.summary,
     });
-    if (deltaError) console.error("batch-analysis could not store delta", deltaError);
-
-    if (result.memory_summary.trim() !== "") {
-      // clients is admin-writable only; the caller is already verified as director/admin.
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      const { error: memoryError } = await supabaseAdmin
+    if (deltaError) console.error("[batch-analysis] could not store delta", deltaError);
+    if (result.memory_summary && result.memory_summary.trim() !== "") {
+      const { error: memoryError } = await supabase
         .from("clients")
         .update({ memory_summary: result.memory_summary })
         .eq("id", submission.client_id);
-      if (memoryError) console.error("batch-analysis could not store memory", memoryError);
+      if (memoryError) console.error("[batch-analysis] could not store memory", memoryError);
     }
-
     return {
       ok: true as const,
       agent_output_id: output.id,

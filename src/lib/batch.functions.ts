@@ -1,16 +1,10 @@
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 
-// Calls the Supabase Edge Function — keys live in Supabase Vault
-export const analyzeSubmission = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
-    z.object({ submission_id: z.string().uuid() }).parse(input),
-  )
-  .handler(async ({ data }) => {
-    const { data: result, error } = await supabase.functions.invoke("batch-analysis", {
-      body: { submission_id: data.submission_id },
-    });
-    if (error) throw error;
-    return result;
+// Calls Supabase Edge Function directly from client — keys live in Vault, never in code
+export const analyzeSubmission = async (args: { data: { submission_id: string } }) => {
+  const { data, error } = await supabase.functions.invoke("batch-analysis", {
+    body: { submission_id: args.data.submission_id },
   });
+  if (error) throw error;
+  return data;
+};

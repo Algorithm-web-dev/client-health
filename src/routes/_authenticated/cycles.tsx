@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
+
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Copy, Loader2 } from "lucide-react";
@@ -59,7 +59,7 @@ export const Route = createFileRoute("/_authenticated/cycles")({
 
 function CyclesPage() {
   const queryClient = useQueryClient();
-  const runAnalysis = useServerFn(analyzeSubmission);
+  const runAnalysis = analyzeSubmission;
 
   const cyclesQuery = useQuery({ queryKey: ["cycles"], queryFn: fetchCycles });
   const cycles = cyclesQuery.data ?? [];
@@ -309,3 +309,4 @@ function CyclesPage() {
     </div>
   );
 }
+

@@ -352,15 +352,14 @@ function WizardPage() {
           <CardContent className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="client">Your clients</Label>
-              <Select value={clientId} onValueChange={setClientId}>
               <div className="relative">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
                   <input
                     id="client-search"
                     type="text"
-                    placeholder="Search clients..."
-                    value={selectedClient ? selectedClient.name + (selectedClient.tier ? ` - Tier ${selectedClient.tier}` : "") : clientSearch}
+                    placeholder="Search clients…"
+                    value={selectedClient ? selectedClient.name + (selectedClient.tier ? ` · Tier ${selectedClient.tier}` : "") : clientSearch}
                     onChange={(e) => {
                       setClientSearch(e.target.value);
                       setClientId("");
@@ -393,7 +392,7 @@ function WizardPage() {
                           <span className="font-medium">{c.name}</span>
                           {c.tier && <span className="ml-2 text-muted-foreground text-xs">Tier {c.tier}</span>}
                           {c.ci_leads?.length > 0 && (
-                            <span className="ml-2 text-muted-foreground text-xs">- {c.ci_leads.join(", ")}</span>
+                            <span className="ml-2 text-muted-foreground text-xs">· {c.ci_leads.join(", ")}</span>
                           )}
                         </button>
                       ))}
@@ -406,7 +405,6 @@ function WizardPage() {
                   </div>
                 )}
               </div>
-              </Select>
               {clients.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
                   No active clients are assigned to you yet.
@@ -709,6 +707,4 @@ function WizardPage() {
     </div>
   );
 }
-
-
 

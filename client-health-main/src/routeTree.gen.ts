@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedCyclesRouteImport } from './routes/_authenticated/cycles'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedDebugRouteImport } from './routes/_authenticated/debug'
 import { Route as AuthenticatedReviewRouteImport } from './routes/_authenticated/review'
 import { Route as AuthenticatedWizardRouteImport } from './routes/_authenticated/wizard'
 import { Route as AuthenticatedAdminClientsRouteImport } from './routes/_authenticated/admin.clients'
@@ -42,6 +43,11 @@ const AuthenticatedCyclesRoute = AuthenticatedCyclesRouteImport.update({
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDebugRoute = AuthenticatedDebugRouteImport.update({
+  id: '/debug',
+  path: '/debug',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedReviewRoute = AuthenticatedReviewRouteImport.update({
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/cycles': typeof AuthenticatedCyclesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/debug': typeof AuthenticatedDebugRoute
   '/review': typeof AuthenticatedReviewRoute
   '/wizard': typeof AuthenticatedWizardRoute
   '/admin/clients': typeof AuthenticatedAdminClientsRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/cycles': typeof AuthenticatedCyclesRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/debug': typeof AuthenticatedDebugRoute
   '/review': typeof AuthenticatedReviewRoute
   '/wizard': typeof AuthenticatedWizardRoute
   '/admin/clients': typeof AuthenticatedAdminClientsRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_authenticated/cycles': typeof AuthenticatedCyclesRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/debug': typeof AuthenticatedDebugRoute
   '/_authenticated/review': typeof AuthenticatedReviewRoute
   '/_authenticated/wizard': typeof AuthenticatedWizardRoute
   '/_authenticated/admin/clients': typeof AuthenticatedAdminClientsRoute
@@ -114,6 +123,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/cycles'
     | '/dashboard'
+    | '/debug'
     | '/review'
     | '/wizard'
     | '/admin/clients'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/cycles'
     | '/dashboard'
+    | '/debug'
     | '/review'
     | '/wizard'
     | '/admin/clients'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/_authenticated/cycles'
     | '/_authenticated/dashboard'
+    | '/_authenticated/debug'
     | '/_authenticated/review'
     | '/_authenticated/wizard'
     | '/_authenticated/admin/clients'
@@ -187,6 +199,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/debug': {
+      id: '/_authenticated/debug'
+      path: '/debug'
+      fullPath: '/debug'
+      preLoaderRoute: typeof AuthenticatedDebugRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/review': {
       id: '/_authenticated/review'
       path: '/review'
@@ -228,6 +247,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedCyclesRoute: typeof AuthenticatedCyclesRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDebugRoute: typeof AuthenticatedDebugRoute
   AuthenticatedReviewRoute: typeof AuthenticatedReviewRoute
   AuthenticatedWizardRoute: typeof AuthenticatedWizardRoute
   AuthenticatedAdminClientsRoute: typeof AuthenticatedAdminClientsRoute
@@ -238,6 +258,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCyclesRoute: AuthenticatedCyclesRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDebugRoute: AuthenticatedDebugRoute,
   AuthenticatedReviewRoute: AuthenticatedReviewRoute,
   AuthenticatedWizardRoute: AuthenticatedWizardRoute,
   AuthenticatedAdminClientsRoute: AuthenticatedAdminClientsRoute,

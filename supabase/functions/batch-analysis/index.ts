@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
     if (!submission_id) return json({ ok: false, reason: "missing_submission_id" }, 400);
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceKey = Deno.env.get("SERVICE_ROLE_KEY")!;
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY")!;
 
     const supabase = createClient(supabaseUrl, serviceKey);
@@ -225,5 +225,7 @@ function json(data: unknown, status = 200) {
     headers: { ...CORS, "Content-Type": "application/json" },
   });
 }
+
+
 
 

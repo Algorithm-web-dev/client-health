@@ -15,10 +15,6 @@ export const analyzeSubmission = createServerFn({ method: "POST" })
       process.env["SUPABASE_SERVICE_ROLE_KEY"] ?? "",
     );
     const apiKey = process.env["ANTHROPIC_API_KEY"] ?? "";
-    if (!apiKey) {
-      console.error("[batch-analysis] ANTHROPIC_API_KEY not set");
-      return { ok: false as const, reason: "missing_api_key" };
-    }
     const ctx = await loadBatchContext(supabase, data.submission_id);
     const submission = ctx.submission as { client_id: string; cycle_id: string };
     const { data: output, error: outputError } = await supabase
@@ -76,3 +72,7 @@ export const analyzeSubmission = createServerFn({ method: "POST" })
       trajectory: result.trajectory_flag.direction,
     };
   });
+
+
+
+

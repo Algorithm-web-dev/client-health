@@ -46,3 +46,6 @@ export const generateQuestions = createServerFn({ method: "POST" })
       hidden_risk_reason: result.hidden_risk_reason,
     };
   });
+
+
+

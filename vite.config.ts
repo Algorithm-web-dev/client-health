@@ -21,7 +21,10 @@ export default defineConfig({
     tailwindcss(),
     tanstackStart({
       server: { entry: "server" },
-      importProtection: { behavior: "error", client: { files: ["**/server/**"], specifiers: ["server-only"] } },
+      importProtection: {
+        behavior: "error",
+        client: { files: ["**/server/**"], specifiers: ["server-only"] },
+      },
     }),
     nitro({ preset: "vercel" }),
     react(),

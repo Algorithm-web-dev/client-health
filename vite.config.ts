@@ -39,7 +39,10 @@ export default defineConfig({
         },
       },
     }),
-    nitro({ preset: "vercel" }),
+    nitro({
+      preset: "vercel",
+      externals: { inline: ["tslib"] },
+    }),
     react(),
   ],
 });

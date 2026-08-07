@@ -26,7 +26,7 @@ function txt(value: unknown, fallback = "—"): string {
 }
 
 function compactCycleLine(s: Record<string, unknown>): string {
-  return `- ${txt(s["cycle_id"])}${s["fast_path"] ? " [fast path]" : ""}: Perf ${txt(s["performance_rag"])} · Paid ${txt(s["paid_rag"])} · Rel ${txt(s["relationship_rag"])} · Growth ${txt(s["growth_rag"])} · Confidence ${txt(String(s["confidence_score"] ?? "—"))}/10 · Overall ${txt(s["overall_rag"])} — rel: "${txt(s["relationship_reason"], "")}"`;
+  return `- ${txt(s["cycle_id"])}${s["fast_path"] ? " [fast path]" : ""}: Perf ${txt(s["performance_rag"])} · Paid ${txt(s["paid_rag"])} · Rel ${txt(s["relationship_rag"])} · Growth ${txt(s["growth_rag"])} · Confidence ${txt(String(s["confidence_score"] ?? "—"))}/10 · Overall ${txt(s["overall_rag"])} — rel: "${trunc(s["relationship_reason"])}"`;
 }
 
 async function sleep(ms: number) {
@@ -106,7 +106,7 @@ Deno.serve(async (req) => {
       : "(no prior cycles)";
 
     const actionBlock = actions.length > 0
-      ? actions.map((a) => `- ${txt(a["description"])} (owner ${txt(a["owner"])}, due ${txt(String(a["deadline"] ?? "—"))}) → status ${txt(a["status"])}${a["outcome"] ? `, outcome: ${txt(a["outcome"])}` : ", outcome: (none recorded)"}`).join("\n")
+      ? actions.map((a) => `- ${trunc(a["description"])} (owner ${txt(a["owner"])}, due ${txt(String(a["deadline"] ?? "—"))}) → status ${txt(a["status"])}${a["outcome"] ? `, outcome: ${txt(a["outcome"])}` : ", outcome: (none recorded)"}`).join("\n")
       : "(none logged)";
 
     const userPrompt = `CLIENT: ${txt(client["name"])} (CI: ${leads}, Director: ${txt(client["director_support"])})
@@ -115,11 +115,11 @@ CLIENT MEMORY (rolling summary from previous cycles):
 ${txt(client["memory_summary"], "(none yet — first cycle)")}
 
 THIS CYCLE:
-- SEO/Performance: ${txt(s["performance_rag"])} — "${txt(s["performance_reason"], "")}"
-- Paid: ${txt(s["paid_rag"])} — "${txt(s["paid_reason"], "")}"
-- Relationship: ${txt(s["relationship_rag"])} — "${txt(s["relationship_reason"], "")}"
+- SEO/Performance: ${txt(s["performance_rag"])} — "${trunc(s["performance_reason"])}"
+- Paid: ${txt(s["paid_rag"])} — "${trunc(s["paid_reason"])}"
+- Relationship: ${txt(s["relationship_rag"])} — "${trunc(s["relationship_reason"])}"
 - Confidence: ${txt(String(s["confidence_score"] ?? "—"))}/10
-- Growth: ${txt(s["growth_rag"])} — "${txt(s["growth_reason"], "")}"
+- Growth: ${txt(s["growth_rag"])} — "${trunc(s["growth_reason"])}"
 - Overall: ${txt(s["overall_rag"])}
 - Planned action: ${txt(s["next_action"])} (${txt(s["action_owner"])}, ${txt(String(s["action_deadline"] ?? "—"))})
 ${staleNote}
@@ -225,6 +225,11 @@ function json(data: unknown, status = 200) {
     headers: { ...CORS, "Content-Type": "application/json" },
   });
 }
+
+
+
+
+
 
 
 

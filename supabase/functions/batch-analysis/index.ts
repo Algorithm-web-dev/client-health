@@ -25,6 +25,11 @@ function txt(value: unknown, fallback = "—"): string {
   return typeof value === "string" && value.trim() !== "" ? value : fallback;
 }
 
+function trunc(value: unknown, max = 300): string {
+  const s = txt(value);
+  return s.length > max ? s.slice(0, max) + "..." : s;
+}
+
 function compactCycleLine(s: Record<string, unknown>): string {
   return `- ${txt(s["cycle_id"])}${s["fast_path"] ? " [fast path]" : ""}: Perf ${txt(s["performance_rag"])} · Paid ${txt(s["paid_rag"])} · Rel ${txt(s["relationship_rag"])} · Growth ${txt(s["growth_rag"])} · Confidence ${txt(String(s["confidence_score"] ?? "—"))}/10 · Overall ${txt(s["overall_rag"])} — rel: "${trunc(s["relationship_reason"])}"`;
 }
@@ -225,6 +230,7 @@ function json(data: unknown, status = 200) {
     headers: { ...CORS, "Content-Type": "application/json" },
   });
 }
+
 
 
 

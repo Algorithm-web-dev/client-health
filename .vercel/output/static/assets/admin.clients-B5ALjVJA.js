@@ -1,1 +1,0 @@
-import{j as e}from"./index-OYtTvGLF.js";import{P as i,a as t}from"./PageHeader-BeVIf1nw.js";function s(){return e.jsxs("div",{children:[e.jsx(i,{title:"Clients",description:"Admin-only client records and CI assignments."}),e.jsx(t,{title:"Client CRUD",children:"Client create, edit and archive controls will be built here."})]})}export{s as component};
